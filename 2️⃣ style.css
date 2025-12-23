@@ -1,0 +1,29 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #0b1220;
+  color: #e7eefc;
+  margin: 0;
+}
+
+.top {
+  padding: 16px;
+  background: #111b2e;
+}
+
+.controls {
+  margin-top: 10px;
+}
+
+input, button {
+  padding: 8px;
+  margin-left: 6px;
+}
+
+.wrap {
+  padding: 16px;
+}
+
+.actions a {
+  margin-left: 6px;
+  text-decoration: none;
+}

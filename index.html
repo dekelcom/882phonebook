@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>אלפון</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt@2.1.8/css/dataTables.dataTables.min.css">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="top">
+    <h1>אלפון</h1>
+    <div class="controls">
+      <input id="searchBox" type="search" placeholder="חיפוש חופשי…" />
+      <button id="clearSearch">נקה</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <table id="phonebook" class="display">
+      <thead>
+        <tr>
+          <th>שם פרטי</th>
+          <th>שם משפחה</th>
+          <th>פלוגה</th>
+          <th>מסגרת</th>
+          <th>תפקיד בפועל</th>
+          <th>טלפון נייד</th>
+          <th>פעולות</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables.net@2.1.8/js/dataTables.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
