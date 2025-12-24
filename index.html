@@ -1,41 +1,126 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>אלפון</title>
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt@2.1.8/css/dataTables.dataTables.min.css">
-  <link rel="stylesheet" href="./style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אלפון יחידתי</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: system-ui, -apple-system, sans-serif; }
+        .contact-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); height: 100%; transition: transform 0.2s; }
+        .contact-card:hover { transform: translateY(-3px); }
+        .name-header { font-size: 1.25rem; font-weight: bold; margin-bottom: 2px; color: #212529; }
+        .info-sub { font-size: 0.9rem; color: #6c757d; margin-bottom: 12px; }
+        .btn-group-custom { display: flex; gap: 8px; justify-content: center; }
+        .btn-custom { flex: 1; padding: 8px 5px; font-size: 0.85rem; border-radius: 8px; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .search-container { position: sticky; top: 0; background: #f8f9fa; z-index: 1000; padding: 15px 0; }
+        .vcf-btn { background-color: #6c757d; color: white; border: none; }
+        .wa-btn { background-color: #25D366; color: white; border: none; }
+        .tel-btn { background-color: #007bff; color: white; border: none; }
+    </style>
 </head>
 <body>
-  <header class="top">
-    <h1>אלפון</h1>
-    <div class="controls">
-      <input id="searchBox" type="search" placeholder="חיפוש חופשי…" />
-      <button id="clearSearch">נקה</button>
+
+<div class="container mt-3">
+    <h2 class="text-center mb-4">אלפון יחידתי</h2>
+    
+    <div class="search-container">
+        <div class="row g-2">
+            <div class="col-12">
+                <input type="text" id="searchInput" class="form-control" placeholder="חיפוש חופשי (שם, תפקיד...)" onkeyup="filterContacts()">
+            </div>
+            <div class="col-6">
+                <select id="companyFilter" class="form-select" onchange="filterContacts()">
+                    <option value="">כל הפלוגות</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <select id="unitFilter" class="form-select" onchange="filterContacts()">
+                    <option value="">כל המסגרות</option>
+                </select>
+            </div>
+        </div>
     </div>
-  </header>
 
-  <main class="wrap">
-    <table id="phonebook" class="display">
-      <thead>
-        <tr>
-          <th>שם פרטי</th>
-          <th>שם משפחה</th>
-          <th>פלוגה</th>
-          <th>מסגרת</th>
-          <th>תפקיד בפועל</th>
-          <th>טלפון נייד</th>
-          <th>פעולות</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </main>
+    <div id="contactsGrid" class="row g-3 mt-2">
+        <div class="text-center mt-5">טוען נתונים...</div>
+    </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/datatables.net@2.1.8/js/dataTables.min.js"></script>
-  <script src="./script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<script>
+    let allContacts = [];
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZEVFw70pjDNKkIa4JxtpuTu_pizLLb-YTPtyk5WTNRC2hz5PvUqiDXh4OyonQjsDEmqT4cGjhzG1r/pub?gid=1397364136&single=true&output=csv';
+
+    async function loadData() {
+        Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            complete: function(results) {
+                allContacts = results.data.filter(r => r['שם פרטי']); // סינון שורות ריקות
+                populateFilters();
+                renderContacts(allContacts);
+            }
+        });
+    }
+
+    function populateFilters() {
+        const companies = [...new Set(allContacts.map(c => c['פלוגה']))].sort();
+        const units = [...new Set(allContacts.map(c => c['מסגרת']))].sort();
+        
+        const cSelect = document.getElementById('companyFilter');
+        companies.forEach(c => cSelect.innerHTML += `<option value="${c}">${c}</option>`);
+        
+        const uSelect = document.getElementById('unitFilter');
+        units.forEach(u => uSelect.innerHTML += `<option value="${u}">${u}</option>`);
+    }
+
+    function renderContacts(contacts) {
+        const grid = document.getElementById('contactsGrid');
+        grid.innerHTML = '';
+        
+        contacts.forEach(c => {
+            const card = `
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="contact-card text-center">
+                        <div class="name-header">${c['שם פרטי']} ${c['שם משפחה']}</div>
+                        <div class="info-sub">${c['פלוגה']} - ${c['מסגרת']} - ${c['תפקיד']}</div>
+                        <div class="btn-group-custom">
+                            <a href="tel:${c['מספר טלפון']}" class="btn-custom tel-btn">📞 חיוג</a>
+                            <a href="https://wa.me/972${c['מספר טלפון']?.replace(/^0/, '')}" target="_blank" class="btn-custom wa-btn">💬 הודעה</a>
+                            <button onclick="downloadVCard('${c['שם פרטי']}', '${c['שם משפחה']}', '${c['מספר טלפון']}', '${c['פלוגה']}', '${c['תפקיד']}')" class="btn-custom vcf-btn">💾 שמירה</button>
+                        </div>
+                    </div>
+                </div>`;
+            grid.innerHTML += card;
+        });
+    }
+
+    function filterContacts() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        const comp = document.getElementById('companyFilter').value;
+        const unit = document.getElementById('unitFilter').value;
+
+        const filtered = allContacts.filter(c => {
+            const matchText = Object.values(c).join(' ').toLowerCase().includes(term);
+            const matchComp = comp === "" || c['פלוגה'] === comp;
+            const matchUnit = unit === "" || c['מסגרת'] === unit;
+            return matchText && matchComp && matchUnit;
+        });
+        renderContacts(filtered);
+    }
+
+    function downloadVCard(fName, lName, phone, org, title) {
+        const vcard = `BEGIN:VCARD\nVERSION:4.0\nFN:${fName} ${lName}\nN:${lName};${fName};;;\nTEL;TYPE=cell:${phone}\nORG:${org}\nTITLE:${title}\nEND:VCARD`;
+        const blob = new Blob([vcard], { type: 'text/vcard' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${fName}_${lName}.vcf`;
+        a.click();
+    }
+
+    loadData();
+</script>
 </body>
 </html>
